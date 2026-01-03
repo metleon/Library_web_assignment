@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Library — Login</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="centered-page">
+    <div class="card auth-card">
+      <h1>Library Catalogue — Login</h1>
+
+      <form id="loginForm" class="form-stack">
+        <label>Username
+          <input id="loginUsername" required autocomplete="username" />
+        </label>
+
+        <label>Password
+          <input id="loginPassword" type="password" required autocomplete="current-password" />
+        </label>
+
+        <div class="form-row">
+          <button type="submit" class="btn">Sign in</button>
+          <a href="register.html" id="registerLink" class="link muted">Register (admin only)</a>
+        </div>
+
+        <p id="loginMessage" class="muted small"></p>
+      </form>
+
+      <p class="muted tiny">Default admin: <strong>admin</strong> / <strong>admin123</strong> (change after first login)</p>
+    </div>
+  </main>
+
+  <script src="auth.js"></script>
+  <script>
+    // page logic
+    (function(){
+      // initialize default admin if missing
+      Auth.ensureDefaultAdmin();
+
+      const form = document.getElementById('loginForm');
+      const msg = document.getElementById('loginMessage');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        msg.textContent = '';
+        const u = document.getElementById('loginUsername').value.trim();
+        const p = document.getElementById('loginPassword').value;
+        try {
+          const user = await Auth.login(u, p);
+          if (!user) {
+            msg.textContent = 'Invalid credentials';
+            return;
+          }
+          // redirect to main site (adminlogin.html)
+          window.location.href = 'adminlogin.html';
+        } catch (err) {
+          console.error(err);
+          msg.textContent = 'Login failed';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
+

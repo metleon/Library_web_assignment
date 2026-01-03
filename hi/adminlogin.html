@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Library Management System with DDC Cataloguing</title>
+    <link rel="icon" type="image/favicon-32x32" sizes="32x32" href="/images/favicon-32x32.png">
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        
+        .simple-navbar {
+            background-color: var(--secondary);
+            padding: 0 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .simple-navbar ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .simple-navbar li {
+            margin: 0;
+        }
+        
+        .simple-navbar a {
+            display: block;
+            padding: 1rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .simple-navbar a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .simple-navbar i {
+            margin-right: 0.5rem;
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 768px) {
+            .simple-navbar ul {
+                flex-direction: column;
+            }
+            
+            .simple-navbar a {
+                padding: 0.8rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <span class="fundisha">Fundisha</span>
+            <span class="library">Library</span>
+        </div>
+        <div class="top-actions">
+            <button id="darkModeBtn" class="btn outline">🌙 Dark Mode</button>
+            <a href="#" id="linkRegister" class="link hidden">Register</a>
+            <button id="logoutBtn" class="btn outline">Logout</button>
+            <span id="currentUserDisplay" class="muted"></span>
+        </div>
+    </header>
+    
+
+  <nav class="simple-navbar">
+        <ul>
+            <li><a href="#dashboardContent"><i class="fas fa-th-large"></i> Dashboard</a></li>
+            <li><a href="#loansContent"><i class="fas fa-exchange-alt"></i> Loans & Borrowing</a></li>
+            <li><a href="#registerContent"><i class="fas fa-user-plus"></i> Register</a></li>
+            <li><a href="#newsContent"><i class="fas fa-bullhorn"></i> News Flash</a></li>
+            <li><a href="#contactContent"><i class="fas fa-envelope"></i> Contact Us</a></li>
+            <li><a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </nav>
+
+    <main class="container-grid">
+        <nav class="cataloguing-sidebar">
+            <div class="sidebar-section">
+                <h4><i class="fas fa-book"></i> Panel</h4>
+                <button id="btnDashboard" class="nav-btn active">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </button>
+                <button id="btnAdvancedSearch" class="nav-btn">
+                    <i class="fas fa-search"></i> Advanced Search
+                </button>
+                <button id="btnCatalogRules" class="nav-btn">
+                    <i class="fas fa-clipboard-check"></i> Cataloguing Rules
+                </button>
+            
+                <button id="btnReports" class="nav-btn">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h4><i class="fas fa-user-tag"></i> User Management</h4>
+                <button id="btnRegister" class="nav-btn">
+                    <i class="fas fa-user-plus"></i> Register User
+                </button>
+                <button id="btnLogin" class="nav-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </div>
+            
+     
+            <div class="sidebar-section ddc-quick-guide">
+                <h4><i class="fas fa-lightbulb"></i> Quick Guide</h4>
+                <div class="ddc-classes">
+                    <span class="ddc-tag">Library Science</span>
+                    <span class="ddc-tag">Cataloguing</span>
+                    <span class="ddc-tag">Classification</span>
+                    <span class="ddc-tag">Information Science</span>
+                    <span class="ddc-tag">Research Methods</span>
+                </div>
+            </div>
+        </nav>
+        
+        <div id="contentArea">
+            <!-- Dashboard Content -->
+            <section id="dashboardContent" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-book-open"></i> Library Catalogue</h2>
+                    <div class="catalog-stats">
+                        <span class="stat-item">
+                            <i class="fas fa-book"></i>
+                            <span id="totalBooks">0</span> Titles
+                        </span>
+                        <span class="stat-item">
+                            <i class="fas fa-sort-numeric-down"></i>
+                            <span id="ddcCategories">5</span> Categories
+                        </span>
+                        <span class="stat-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span id="catalogedBooks">0</span> Cataloged
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="catalog-tools">
+                    <div class="search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search by title, author, or ISBN..." />
+                            <button class="btn small" id="advancedSearchBtn">
+                                <i class="fas fa-sliders-h"></i> Advanced
+                            </button>
+                        </div>
+                        <div class="quick-filters">
+                            <select id="filterCategory" class="category-select">
+                                <option value="">All Categories</option>
+                                <option value="library-science">Library Science</option>
+                                <option value="cataloguing">Cataloguing</option>
+                                <option value="classification">Classification</option>
+                                <option value="information-science">Information Science</option>
+                                <option value="research">Research Methods</option>
+                            </select>
+                            <select id="filterStatus">
+                                <option value="">All Status</option>
+                                <option value="available">Available</option>
+                                <option value="borrowed">Borrowed</option>
+                                <option value="reserved">Reserved</option>
+                                <option value="processing">Processing</option>
+                            </select>
+                            <select id="filterLanguage">
+                                <option value="">All Languages</option>
+                                <option value="en">English</option>
+                                <option value="sw">Swahili</option>
+                                <option value="fr">French</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="bookGrid" class="book-grid ddc-grid"></div>
+                <div id="emptyMessage" class="empty">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No books in catalogue</h3>
+                    <p>Start by adding your first book using the cataloguing form below.</p>
+                </div>
+                
+                <!-- Enhanced Cataloguing Form -->
+                <div class="catalog-form-container">
+                    <h3><i class="fas fa-plus-circle"></i> Add Book</h3>
+                    <form id="addBookForm" class="form-stack cataloguing-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="title">
+                                    <i class="fas fa-heading"></i> Title *
+                                </label>
+                                <input id="title" placeholder="Book title" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="author">
+                                    <i class="fas fa-user-edit"></i> Author *
+                                </label>
+                                <input id="author" placeholder="Author name" required />
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="category">
+                                    <i class="fas fa-tag"></i> Category *
+                                </label>
+                                <select id="category" required>
+                                    <option value="">Select category</option>
+                                    <option value="library-science">Library Science</option>
+                                    <option value="cataloguing">Cataloguing</option>
+                                    <option value="classification">Classification</option>
+                                    <option value="information-science">Information Science</option>
+                                    <option value="research">Research Methods</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="callNumber">
+                                    <i class="fas fa-barcode"></i> Call Number *
+                                </label>
+                                <input id="callNumber" placeholder="e.g., LIB-001" required />
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="isbn">
+                                    <i class="fas fa-fingerprint"></i> ISBN/ISSN
+                                </label>
+                                <input id="isbn" placeholder="ISBN-10 or ISBN-13" 
+                                       pattern="^(?:\d{10}|\d{13})$" />
+                            </div>
+                            <div class="form-group">
+                                <label for="publication">
+                                    <i class="fas fa-map-marker-alt"></i> Publication Details *
+                                </label>
+                                <input id="publication" placeholder="Publisher, year" required />
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="language">
+                                    <i class="fas fa-language"></i> Language *
+                                </label>
+                                <select id="language" required>
+                                    <option value="">Select language</option>
+                                    <option value="en">English</option>
+                                    <option value="sw">Swahili</option>
+                                    <option value="fr">French</option>
+                                    <option value="es">Spanish</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="materialType">
+                                    <i class="fas fa-bookmark"></i> Material Type *
+                                </label>
+                                <select id="materialType" required>
+                                    <option value="">Select type</option>
+                                    <option value="book">Book</option>
+                                    <option value="ebook">E-Book</option>
+                                    <option value="journal">Journal</option>
+                                    <option value="thesis">Thesis</option>
+                                    <option value="audiobook">Audiobook</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group full-width">
+                                <label for="description">
+                                    <i class="fas fa-align-left"></i> Description
+                                </label>
+                                <textarea id="description" 
+                                          placeholder="Enter book description"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="accessionNumber">
+                                    <i class="fas fa-hashtag"></i> Accession Number *
+                                </label>
+                                <input id="accessionNumber" type="text" 
+                                       placeholder="ACC-001" 
+                                       required />
+                            </div>
+                            <div class="form-group">
+                                <label for="location">
+                                    <i class="fas fa-map-pin"></i> Location
+                                </label>
+                                <input id="location" placeholder="e.g., Shelf A3, Row 4" />
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn primary">
+                                <i class="fas fa-save"></i> Add Book
+                            </button>
+                            <button type="reset" class="btn outline">
+                                <i class="fas fa-redo"></i> Clear Form
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+      
+            <section id="advancedSearchContent" class="content-section" style="display:none;">
+                <h2><i class="fas fa-search-plus"></i> Advanced Search</h2>
+                
+                
+            </section>
+
+        <!-- Loans & Borrowing Content -->
+            <section id="loansContent" class="content-section" style="display:none;">
+                <div class="section-header">
+                    <h2><i class="fas fa-exchange-alt"></i> Loans & Borrowing Management</h2>
+                    <p>Manage book loans, track returns, and calculate fines</p>
+                </div>
+                
+                    <div class="loans-stats">
+                        <div class="stat-card">
+                            <span class="stat-number" id="totalLoans">24</span>
+                            <span class="stat-label">Active Loans</span>
+                        <small>Current borrowed items</small>
+                    </div>
+                    
+                    <div class="stat-card overdue">
+                        <span class="stat-number" id="overdueLoans">3</span>
+                        <span class="stat-label">Overdue Items</span>
+                        <small>Past return date</small>
+                    </div>
+                    
+                    <div class="stat-card fines">
+                        <span class="stat-number" id="totalFines">KES 1,250</span>
+                        <span class="stat-label">Pending Fines</span>
+                        <small>Total amount due</small>
+                    </div>
+                    
+                    <div class="stat-card available">
+                        <span class="stat-number" id="availableBooks">156</span>
+                        <span class="stat-label">Available Books</span>
+                        <small>Ready for borrowing</small>
+                    </div>
+                </div>
+                
+                <!-- Fine Calculator -->
+                <div class="fine-calculator">
+                    <h3><i class="fas fa-calculator"></i> Fine Calculator</h3>
+                    <div class="calculator-form">
+                        <div>
+                            <label>Overdue Days</label>
+                            <input type="number" id="overdueDays" min="0" value="7" class="form-control">
+                        </div>
+                        <div>
+                            <label>Daily Fine Rate (KES)</label>
+                            <input type="number" id="fineRate" min="0" step="10" value="50" class="form-control">
+                        </div>
+                        <div>
+                            <label>Damaged/Lost Item</label>
+                            <select id="itemStatus" class="form-control">
+                                <option value="no">No</option>
+                                <option value="damaged">Damaged</option>
+                                <option value="lost">Lost</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button class="btn primary" onclick="calculateFine()">
+                                <i class="fas fa-calculator"></i> Calculate Fine
+                            </button>
+                        </div>
+                    </div>
+                    <div class="calculator-result" id="fineResult" style="display:none;">
+                        <h4>Total Fine Amount</h4>
+                        <div class="result-amount">KES 0</div>
+                        <small>Breakdown: Daily fines + Replacement fees</small>
+                    </div>
+                </div>
+                
+                <!-- Loans Grid -->
+                <div class="loans-grid">
+                    <!-- Active Loans Section -->
+                    <div class="loans-section">
+                        <h3><i class="fas fa-clock"></i> Active Loans</h3>
+                        <div class="loan-list">
+                            <div class="loan-item">
+                                <div>
+                                    <strong>Introduction to Cataloguing</strong><br>
+                                    <small>Borrower: John Doe | Due: 2024-03-15</small>
+                                </div>
+                                <span class="loan-status status-active">Active</span>
+                            </div>
+                            <div class="loan-item">
+                                <div>
+                                    <strong>DDC 23rd Edition Guide</strong><br>
+                                    <small>Borrower: Jane Smith | Due: 2024-03-10</small>
+                                </div>
+                                <span class="loan-status status-active">Active</span>
+                            </div>
+                            <div class="loan-item">
+                                <div>
+                                    <strong>Library Management Systems</strong><br>
+                                    <small>Borrower: Mike Johnson | Due: 2024-03-05</small>
+                                </div>
+                                <span class="loan-status status-overdue">Overdue</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Borrowing History -->
+                    <div class="loans-section">
+                        <h3><i class="fas fa-history"></i> Recent Returns</h3>
+                        <div class="loan-list">
+                            <div class="loan-item">
+                                <div>
+                                    <strong>Research Methods Guide</strong><br>
+                                    <small>Borrower: Sarah Williams | Returned: 2024-02-28</small>
+                                </div>
+                                <span class="loan-status status-returned">Returned</span>
+                            </div>
+                            <div class="loan-item">
+                                <div>
+                                    <strong>Information Science Basics</strong><br>
+                                    <small>Borrower: Robert Brown | Returned: 2024-02-25</small>
+                                </div>
+                                <span class="loan-status status-returned">Returned</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="loans-section">
+                        <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <button class="btn primary">
+                                <i class="fas fa-plus"></i> New Loan
+                            </button>
+                            <button class="btn secondary">
+                                <i class="fas fa-check-circle"></i> Return Book
+                            </button>
+                            <button class="btn outline">
+                                <i class="fas fa-print"></i> Print Reports
+                            </button>
+                            <button class="btn outline">
+                                <i class="fas fa-envelope"></i> Send Reminders
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Loan Rules -->
+                    <div class="loans-section">
+                        <h3><i class="fas fa-info-circle"></i> Loan Policies</h3>
+                        <ul style="padding-left: 1.5rem;">
+                            <li>Maximum loan period: 14 days</li>
+                            <li>Maximum items per user: 5</li>
+                            <li>Daily fine: KES 50 per item</li>
+                            <li>Replacement fee: Actual cost + KES 500</li>
+                            <li>Renewals allowed: 1 time per item</li>
+                            <li>No fines for weekends/holidays</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Registration Content -->
+            <section id="registerContent" class="content-section" style="display:none;">
+                <div class="section-header">
+                    <h2><i class="fas fa-user-plus"></i> User Registration</h2>
+                    <p>Register new library members or staff users</p>
+                </div>
+                
+                <div class="user-type-selector">
+                    <button class="user-type-btn active" onclick="selectUserType('student')">
+                        <i class="fas fa-graduation-cap"></i>
+                        <div>Student</div>
+                    </button>
+                    <button class="user-type-btn" onclick="selectUserType('staff')">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <div>Academic Staff</div>
+                    </button>
+                    <button class="user-type-btn" onclick="selectUserType('admin')">
+                        <i class="fas fa-user-shield"></i>
+                        <div>Library Staff</div>
+                    </button>
+                </div>
+                
+                <form class="registration-form" id="userRegistrationForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-id-card"></i> Registration Number *</label>
+                            <input type="text" id="regNumber" placeholder="E156/XXXX/2024" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope"></i> Email Address *</label>
+                            <input type="email" id="userEmail" placeholder="user@fundisha.edu" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Full Name *</label>
+                            <input type="text" id="fullName" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> Phone Number</label>
+                            <input type="tel" id="phoneNumber" placeholder="+254 700 000 000">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-building"></i> Department/Faculty</label>
+                            <select id="department" required>
+                                <option value="">Select Department</option>
+                                <option value="information-science">Information Science</option>
+                                <option value="computer-science">Computer Science</option>
+                                <option value="education">Education</option>
+                                <option value="business">Business Studies</option>
+                                <option value="law">Law</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar"></i> Membership Expiry</label>
+                            <input type="date" id="expiryDate" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label><i class="fas fa-sticky-note"></i> Notes</label>
+                            <textarea id="userNotes" placeholder="Additional information about the user..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn primary">
+                            <i class="fas fa-user-plus"></i> Register User
+                        </button>
+                        <button type="reset" class="btn outline">
+                            <i class="fas fa-redo"></i> Clear Form
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Recently Registered Users -->
+                <div class="loans-section" style="margin-top: 2rem;">
+                    <h3><i class="fas fa-users"></i> Recently Registered Users</h3>
+                    <div class="loan-list">
+                        <div class="loan-item">
+                            <div>
+                                <strong>Jane Mwangi</strong><br>
+                                <small>E156/4152/2024 | Student | Info Science</small>
+                            </div>
+                            <span class="loan-status status-active">Active</span>
+                        </div>
+                        <div class="loan-item">
+                            <div>
+                                <strong>Dr. Peter Kamau</strong><br>
+                                <small>STAFF/001 | Academic Staff | Education</small>
+                            </div>
+                            <span class="loan-status status-active">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- News Flash Content -->
+            <section id="newsContent" class="content-section" style="display:none;">
+                <div class="section-header">
+                    <h2><i class="fas fa-bullhorn"></i> Library News & Announcements</h2>
+                    <p>Latest updates, events, and important notices from the library</p>
+                </div>
+                
+                <div class="news-container">
+                    <!-- Latest News -->
+                    <div class="news-item">
+                        <div class="news-date">March 1, 2024</div>
+                        <h3 class="news-title">DDC 23rd Edition Training Workshop</h3>
+                        <p>The library will conduct a special training workshop on the new Dewey Decimal Classification 23rd Edition on March 15th, 2024. All library staff and interested students are invited to attend.</p>
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <span class="badge">Training</span>
+                            <span class="badge">DDC 23</span>
+                            <span class="badge">Professional Development</span>
+                        </div>
+                    </div>
+                    
+                    <div class="news-item">
+                        <div class="news-date">February 28, 2024</div>
+                        <h3 class="news-title">Extended Library Hours for Exams</h3>
+                        <p>To support students during the examination period, the library will extend its opening hours from 7:00 AM to 10:00 PM starting from March 1st to March 30th, 2024.</p>
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <span class="badge">Announcement</span>
+                            <span class="badge">Extended Hours</span>
+                        </div>
+                    </div>
+                    
+                    <div class="news-item">
+                        <div class="news-date">February 25, 2024</div>
+                        <h3 class="news-title">New Digital Resources Available</h3>
+                        <p>We have added new digital resources including e-books, academic journals, and research databases. Access them through the library portal using your credentials.</p>
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <span class="badge">Digital Resources</span>
+                            <span class="badge">E-Books</span>
+                            <span class="badge">Research</span>
+                        </div>
+                    </div>
+                    
+                    <div class="news-item">
+                        <div class="news-date">February 20, 2024</div>
+                        <h3 class="news-title">Library System Maintenance</h3>
+                        <p>There will be scheduled maintenance of the library management system on March 5th, 2024 from 2:00 AM to 4:00 AM. The system may be unavailable during this period.</p>
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <span class="badge">Maintenance</span>
+                            <span class="badge">System Update</span>
+                        </div>
+                    </div>
+                    
+                    <div class="news-item">
+                        <div class="news-date">February 15, 2024</div>
+                        <h3 class="news-title">Book Donation Drive</h3>
+                        <p>Participate in our annual book donation drive. Donate your used academic books to help build our library collection. Drop-off points are available at the main library entrance.</p>
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <span class="badge">Community</span>
+                            <span class="badge">Donation</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Upcoming Events -->
+                    <div style="margin-top: 3rem;">
+                        <h3><i class="fas fa-calendar-alt"></i> Upcoming Events</h3>
+                        <div class="loans-section">
+                            <div class="loan-item">
+                                <div>
+                                    <strong>Author Meet & Greet</strong><br>
+                                    <small>March 10, 2024 | 2:00 PM | Library Auditorium</small>
+                                </div>
+                                <span class="loan-status status-active">Upcoming</span>
+                            </div>
+                            <div class="loan-item">
+                                <div>
+                                    <strong>Research Skills Workshop</strong><br>
+                                    <small>March 12, 2024 | 10:00 AM | Computer Lab 3</small>
+                                </div>
+                                <span class="loan-status status-active">Upcoming</span>
+                            </div>
+                            <div class="loan-item">
+                                <div>
+                                    <strong>Library Open Day</strong><br>
+                                    <small>March 20, 2024 | All Day | Main Library</small>
+                                </div>
+                                <span class="loan-status status-active">Upcoming</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Us Content -->
+            <section id="contactContent" class="content-section" style="display:none;">
+                <div class="section-header">
+                    <h2><i class="fas fa-envelope"></i> Contact Us</h2>
+                    <p>Get in touch with the library administration and support team</p>
+                </div>
+                
+                <div class="contact-container">
+                    <!-- Contact Information -->
+                    <div class="contact-info">
+                        <h3><i class="fas fa-info-circle"></i> Contact Information</h3>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <strong>Address</strong>
+                                <p>Fundisha Library System<br>
+                                456 Education Avenue<br>
+                                Academic City, Kenya</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div>
+                                <strong>Phone Numbers</strong>
+                                <p>Main: (254) 789-0123<br>
+                                Support: (254) 789-0456<br>
+                                Fax: (254) 789-0789</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div>
+                                <strong>Email Addresses</strong>
+                                <p>General: info@fundisha.edu<br>
+                                Support: library.support@fundisha.edu<br>
+                                Administration: library.admin@fundisha.edu</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div>
+                                <strong>Opening Hours</strong>
+                                <p>Monday - Friday: 8:00 AM - 8:00 PM<br>
+                                Saturday: 9:00 AM - 5:00 PM<br>
+                                Sunday: 10:00 AM - 4:00 PM</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-user-friends"></i>
+                            </div>
+                            <div>
+                                <strong>Emergency Contact</strong>
+                                <p>For urgent library matters after hours<br>
+                                Emergency: (254) 789-0999</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contact Form -->
+                    <div class="contact-info">
+                        <h3><i class="fas fa-paper-plane"></i> Send us a Message</h3>
+                        <form id="contactForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Full Name *</label>
+                                    <input type="text" id="contactName" placeholder="Your name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email Address *</label>
+                                    <input type="email" id="contactEmail" placeholder="your@email.com" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Phone Number</label>
+                                    <input type="tel" id="contactPhone" placeholder="+254 7060 444 95">
+                                </div>
+                                <div class="form-group">
+                                    <label>Department</label>
+                                    <select id="contactDepartment">
+                                        <option value="">Select Department</option>
+                                        <option value="student">Student</option>
+                                        <option value="staff">Academic Staff</option>
+                                        <option value="library">Library Staff</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Subject *</label>
+                                    <select id="contactSubject" required>
+                                        <option value="">Select subject</option>
+                                        <option value="general">General Inquiry</option>
+                                        <option value="technical">Technical Support</option>
+                                        <option value="cataloguing">Cataloguing Help</option>
+                                        <option value="loans">Loans & Borrowing</option>
+                                        <option value="fines">Fines & Payments</option>
+                                        <option value="suggestions">Book Suggestions</option>
+                                        <option value="complaint">Complaint</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label>Message *</label>
+                                    <textarea id="contactMessage" rows="5" placeholder="Type your message here..." required></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn primary">
+                                    <i class="fas fa-paper-plane"></i> Send Message
+                                </button>
+                                <button type="reset" class="btn outline">
+                                    <i class="fas fa-redo"></i> Clear Form
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 3rem;">
+                    <h3><i class="fas fa-users"></i> Library Staff Directory</h3>
+                    <div class="loans-grid">
+                        <div class="loans-section">
+                            <h4><i class="fas fa-user-tie"></i> Administration</h4>
+                            <div class="loan-item">
+                                <div>
+                                    <strong>Dr. Sarah Mwangi</strong><br>
+                                    <small>Head Librarian</small>
+                                </div>
+                                <small>s.mwangi@fundisha.edu</small>
+                            </div>
+                            <div class="loan-item">
+                                <div>
+                                    <strong>Mr. James Ochieng</strong><br>
+                                    <small>Deputy Librarian</small>
+                                </div>
+                                <small>j.ochieng@fundisha.edu</small>
+                            </div>
+                        </div>
+                        
+                        <div class="loans-section">
+                            <h4><i class="fas fa-book"></i> Cataloguing Department</h4>
+                            <div class="loan-item">
+                                <div>
+                                    <strong>Ms. Grace Wanjiru</strong><br>
+                                    <small>Chief Cataloguer</small>
+                                </div>
+                                <small>g.wanjiru@fundisha.edu</small>
+                            </div>
+                            <div class="loan-item">
+                                <div>
+                                    <strong>Mr. David Kimani</strong><br>
+                                    <small>DDC Specialist</small>
+                                </div>
+                                <small>d.kimani@fundisha.edu</small>
+                            </div>
+                        </div>
+                        
+                        <div class="loans-section">
+                            <h4><i class="fas fa-headset"></i> User Support</h4>
+                            <div class="loan-item">
+                                <div>
+                                    <strong>Ms. Faith Atieno</strong><br>
+                                    <small>User Support Manager</small>
+                                </div>
+                                <small>f.atieno@fundisha.edu</small>
+                            </div>
+                            <div class="loan-item">
+                                <div>
+                                    <strong>Mr. Brian Otieno</strong><br>
+                                    <small>IT Support</small>
+                                </div>
+                                <small>b.otieno@fundisha.edu</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+   
+           
+    </main>
+
+  
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo">
+                    <img src="images/library_logo.png" alt="Library Logo" style="height: 60px; margin-bottom: 20px;">
+                    <div class="logo-text" style="font-family: var(--font-heading); font-weight: 700; font-size: 1.5rem; color: var(--secondary);">
+                        <span class="fundisha">Fundisha</span>
+                        <span class="library">Library</span>
+                        <span class="ddc-badge" style="font-size: 0.8rem; background: var(--accent); color: white; padding: 2px 8px; border-radius: 12px; margin-left: 8px;">DDC 23</span>
+                    </div>
+                </div>
+                <p style="opacity: 0.8; line-height: 1.7; margin-top: 15px;">Professional Library Management System with DDC 23rd Edition Cataloguing and AACR2/RDA compliance.</p>
+                <div class="social-links" style="margin-top: 20px;">
+                    <a href="#" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background-color: rgba(255, 255, 255, 0.1); border-radius: 50%; margin-right: 10px; transition: all 0.3s ease;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                    </a>
+                    <a href="#" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background-color: rgba(255, 255, 255, 0.1); border-radius: 50%; margin-right: 10px; transition: all 0.3s ease;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>
+</a>
+<a href="#" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background-color: rgba(255, 255, 255, 0.1); border-radius: 50%; margin-right: 10px; transition: all 0.3s ease;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+</a>
+<a href="#" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background-color: rgba(255, 255, 255, 0.1); border-radius: 50%; margin-right: 10px; transition: all 0.3s ease;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+</a>
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="dashboard.html">Catalogue Dashboard</a></li>
+                    <li><a href="ddc-guide.html">DDC Guide</a></li>
+                    <li><a href="catalog-rules.html">Cataloguing Rules</a></li>
+                    <li><a href="advanced-search.html">Advanced Search</a></li>
+                    <li><a href="reports.html">Reports</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Cataloguing Standards</h4>
+                <ul>
+                    <li><a href="#">DDC 23rd Edition</a></li>
+                    <li><a href="#">AACR2/RDA Rules</a></li>
+                    <li><a href="#">MARC 21 Format</a></li>
+                    <li><a href="#">LCSH Subject Headings</a></li>
+                    <li><a href="#">ISBD Guidelines</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Contact Info</h4>
+                <ul>
+                    <li>Fundisha Library System</li>
+                    <li>Library Management Directorate</li>
+                    <li>456 Education Avenue</li>
+                    <li>Academic City</li>
+                    <li>Email: library.support@fundisha.edu</li>
+                    <li>Phone: (254) 789-0123</li>
+                </ul>
+            </div>
+        </div>
+        
+
+<section class="developer-credits" id="credits">
+    <h3>Website Developed By</h3>
+    <div class="team-grid">
+        
+        <div class="team-member">
+            <img src="Images/leon_wangai.jpg" alt="Portrait of Leon Wangai" />
+            <p><strong>Leon Wangai<br>E156/4152/2024</strong></p>
+        </div>
+
+        <div class="team-member">
+            <img src="Images/Mwalukombe_Mnyaka.jpg" alt="Portrait of Mwalukombe Mnyaka" />
+            <p><strong>MWALUKOMBE MNYAKA<br>E156/4134/2024</strong></p>
+        </div>
+
+        <div class="team-member">
+            <img src="Images/Abel_Lusaka.jpg" alt="Portrait of Abel Lusaka Khaemba" />
+            <p><strong>ABEL LUSAKA KHAEMBA<br>E156/4173/2024</strong></p>
+        </div>
+
+        <div class="team-member">
+            <img src="Images/Gabrielle.jpg" alt="Portrait of Gabrielle Nozele" />
+            <p><strong>GABRIELLE NOZELE<br>E156/4176/2024</strong></p>
+        </div>
+
+        <div class="team-member">
+            <img src="Images/Otieno_Trezah.jpg" alt="Portrait of Otieno Trezah" />
+            <p><strong>OTIENO TREZAH<br>E156/4143/2024</strong></p>
+        </div>
+
+        <div class="team-member">
+            <img src="Images/Victor_waithaka.jpg" alt="Portrait of Victor Waithaka" />
+            <p><strong>VICTOR WAITHAKA<br>E156/4150/2024</strong></p>
+        </div>
+
+        <div class="team-member">
+            <img src="Images/Ayoo_Anthony.jpg" alt="Portrait of Ayoo Anthony" />
+            <p><strong>AYOO ANTHONY<br>E08S/19783/2024</strong></p>
+        </div>
+
+        <div class="team-member">
+            <img src="Images/Diana_Chepngeno.jpg" alt="Portrait of Diana Chepngeno" />
+            <p><strong>DIANA CHEPNGENO<br>E156/10004/2024</strong></p>
+        </div>
+
+        <div class="team-member">
+            <img src="Images/Ann_Nduku.jpg" alt="Portrait of Ann Nduku Mutua" />
+            <p><strong>ANN NDUKU MUTUA<br>E156/9440/2024</strong></p>
+        </div>
+
+        <div class="team-member">
+            <img src="Images/Carl_suba.jpg" alt="Portrait of Carl Suba" />
+            <p><strong>CARL SUBA<br>E156/10131/2024</strong></p>
+        </div>
+    </div>
+</section>
+
+<div class="footer-bottom">
+    <p>&copy; 2024 Fundisha Library Management System. A professional cataloguing system compliant with international library standards. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+</div>
+</footer>
+    <script src="auth.js"></script>
+    <script src="auth-init.js"></script>
+    <script src="app.js"></script>
+    <script src="cataloguing.js"></script>
+    
+    <script>
+        // Navigation script for simple navbar
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up navigation for simple navbar
+            const navLinks = document.querySelectorAll('.simple-navbar a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const href = this.getAttribute('href');
+                    
+                    if (href === '#') return;
+                    
+                    // Handle logout link
+                    if (this.id === 'logoutLink') {
+                        document.getElementById('logoutBtn').click();
+                        return;
+                    }
+                    
+                    // Handle internal navigation
+                    if (href.startsWith('#')) {
+                        const targetId = href.substring(1);
+                        const targetSection = document.getElementById(targetId);
+                        
+                        if (targetSection) {
+                            // Hide all sections
+                            document.querySelectorAll('.content-section').forEach(section => {
+                                section.style.display = 'none';
+                            });
+                            
+                            // Show target section
+                            targetSection.style.display = 'block';
+                        }
+                    }
+                });
+            });
+            
+            // Set default active section
+            showSection('dashboardContent');
+            document.getElementById('btnDashboard').classList.add('active');
+            
+            // Add event listeners to all sidebar nav buttons
+            const sections = {
+                'btnDashboard': 'dashboardContent',
+                'btnAdvancedSearch': 'advancedSearchContent',
+                'btnCatalogRules': 'catalogRulesContent',
+                'btnDDCGuide': 'ddcGuideContent',
+                'btnReports': 'reportsContent',
+                'btnRegister': 'registerContent',
+                'btnLogin': 'loginContent'
+            };
+            
+            Object.keys(sections).forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    btn.addEventListener('click', function() {
+                        // Hide all sections
+                        Object.values(sections).forEach(sectionId => {
+                            document.getElementById(sectionId).style.display = 'none';
+                        });
+                        
+                        // Remove active class from all sidebar buttons
+                        document.querySelectorAll('.nav-btn').forEach(b => {
+                            b.classList.remove('active');
+                        });
+                        
+                        // Show selected section
+                        showSection(sections[btnId]);
+                        this.classList.add('active');
+                    });
+                }
+            });
+        });
+
+        function showSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
